@@ -5,6 +5,7 @@ edition = "2024"
 description = "Generate and edit .rsf files for CTR homebrew projects."
 authors = [ "TurboToad12" ]
 repository = "https://github.com/turbotoad12/ctr-rsf"
+license = "MIT"
 
 
 [dependencies]
