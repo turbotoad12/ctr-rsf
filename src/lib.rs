@@ -213,8 +213,34 @@ pub fn load_rsf_lenient(raw: &str) -> Result<serde_yaml::Value, serde_yaml::Erro
 }
 
 pub fn load_rsf_safe(raw: &str) -> Result<Rsf, serde_yaml::Error> {
-    let value = load_rsf_lenient(raw)?;
-    let rsf: Rsf = serde_yaml::from_value(value)?;
-    Ok(rsf)
+    let sanitized = sanitize_rsf(raw);
+    serde_yaml::from_str(&sanitized)
 }
+
+
+pub fn sanitize_rsf(raw: &str) -> String {
+    raw.lines()
+        .map(|line| {
+            if let Some((key, value)) = line.split_once(':') {
+                let trimmed = value.trim();
+
+                // Already quoted? Leave it alone.
+                if trimmed.starts_with('"') || trimmed.starts_with('\'') {
+                    return line.to_string();
+                }
+
+                // If the value contains @...@, quote it.
+                if trimmed.contains('@') {
+                    return format!("{key}: \"{trimmed}\"");
+                }
+
+                line.to_string()
+            } else {
+                line.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 
