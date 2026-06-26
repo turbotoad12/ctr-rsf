@@ -204,3 +204,17 @@ use serde_yaml;
 pub fn load_embedded_rsf() -> Result<Rsf, serde_yaml::Error> {
     serde_yaml::from_str(DUMMY_RSF)
 }
+
+/// Load RSF but treat unknown YAML tags (like @VAR@) as plain strings.
+pub fn load_rsf_lenient(raw: &str) -> Result<serde_yaml::Value, serde_yaml::Error> {
+    let deserializer = serde_yaml::Deserializer::from_str(raw);
+    let value = serde_yaml::Value::deserialize(deserializer)?;
+    Ok(value)
+}
+
+pub fn load_rsf_safe(raw: &str) -> Result<Rsf, serde_yaml::Error> {
+    let value = load_rsf_lenient(raw)?;
+    let rsf: Rsf = serde_yaml::from_value(value)?;
+    Ok(rsf)
+}
+
